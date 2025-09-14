@@ -4,6 +4,35 @@
 
 [![Backers on Open Collective](https://opencollective.com/openemr/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/openemr/sponsors/badge.svg)](#sponsors)
 
+### Local Modifications (Tabs UI & Responsive)
+
+This fork includes targeted fixes and enhancements to the Tabs UI and responsive behavior, designed to work in Docker with bind-mounted `interface/` and `templates/`.
+
+Key changes by file:
+
+- `interface/main/tabs/js/tabs_view_model.js`
+  - Keep the active tab in the visible row during overflow recalculation.
+  - Ensure at least one tab always remains visible.
+  - Swap rule in `activateTab()` so a tab selected from “More” moves into the visible row immediately.
+
+- `templates/interface/main/tabs/tabs_template.html.twig`
+  - Removed `with: tabs` scoping to avoid binding errors; now uses `tabs.visibleTabs`/`tabs.moreMenuVisible` directly.
+  - Always render tab titles (no hidden labels when inactive).
+  - “More” dropdown items prevent default navigation and call `tabClicked` cleanly.
+
+- `interface/main/tabs/main.php`
+  - CSS to prevent dropdown clipping and to layer above surrounding UI.
+  - “Portal to body” on open for the “More” dropdown to escape stacking contexts (e.g., left menu), then restore on close.
+  - Layout width set to 100% so tabs can overflow correctly.
+  - Added cache-buster for `custom_bindings.js` to avoid stale caches on mobile.
+
+- `interface/main/tabs/js/custom_bindings.js`
+  - On same-origin tab content load, injects a viewport meta tag and small responsive CSS at `max-width: 992px`.
+  - Equalizes 2–4 inline inputs (e.g., First/Middle/Last) using a CSS Grid helper (`.oemr-eq`), with delayed passes and resize handling.
+  - Propagates the same injection into same-origin nested frames/iframes within tab content.
+
+Changelog summary is kept in `CHANGELOG.md` in this directory.
+
 # OpenEMR
 
 [OpenEMR](https://open-emr.org) is a Free and Open Source electronic health records and medical practice management application. It features fully integrated electronic health records, practice management, scheduling, electronic billing, internationalization, free support, a vibrant community, and a whole lot more. It runs on Windows, Linux, Mac OS X, and many other platforms.
@@ -50,35 +79,6 @@ npm install
 npm run build
 composer dump-autoload -o
 ```
-
-### Local Modifications (Tabs UI & Responsive)
-
-This fork includes targeted fixes and enhancements to the Tabs UI and responsive behavior, designed to work in Docker with bind-mounted `interface/` and `templates/`.
-
-Key changes by file:
-
-- `interface/main/tabs/js/tabs_view_model.js`
-  - Keep the active tab in the visible row during overflow recalculation.
-  - Ensure at least one tab always remains visible.
-  - Swap rule in `activateTab()` so a tab selected from “More” moves into the visible row immediately.
-
-- `templates/interface/main/tabs/tabs_template.html.twig`
-  - Removed `with: tabs` scoping to avoid binding errors; now uses `tabs.visibleTabs`/`tabs.moreMenuVisible` directly.
-  - Always render tab titles (no hidden labels when inactive).
-  - “More” dropdown items prevent default navigation and call `tabClicked` cleanly.
-
-- `interface/main/tabs/main.php`
-  - CSS to prevent dropdown clipping and to layer above surrounding UI.
-  - “Portal to body” on open for the “More” dropdown to escape stacking contexts (e.g., left menu), then restore on close.
-  - Layout width set to 100% so tabs can overflow correctly.
-  - Added cache-buster for `custom_bindings.js` to avoid stale caches on mobile.
-
-- `interface/main/tabs/js/custom_bindings.js`
-  - On same-origin tab content load, injects a viewport meta tag and small responsive CSS at `max-width: 992px`.
-  - Equalizes 2–4 inline inputs (e.g., First/Middle/Last) using a CSS Grid helper (`.oemr-eq`), with delayed passes and resize handling.
-  - Propagates the same injection into same-origin nested frames/iframes within tab content.
-
-Changelog summary is kept in `CHANGELOG.md` in this directory.
 
 ### Contributors
 
